@@ -1,0 +1,36 @@
+[project]
+name = "kacoscraper"
+version = "0.1.0"
+description = "access solar inverter live data for Kaco blueplanet nx"
+readme = "README.md"
+authors = [
+    { name = "Michael Helmling", email = "michaelhelmling@posteo.de" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.2.1",
+    "requests>=2.32.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.0",
+    "ruff>=0.11.13",
+    "taskipy>=1.14.1",
+    "types-requests>=2.32.4.20250611",
+]
+
+[project.scripts]
+kacoscraper = "kacoscraper.cli:kaco_cli"
+
+[project.optional-dependencies]
+prometheus = [
+    "prometheus-client>=0.22.1",
+]
+
+[tool.taskipy.tasks]
+lint = 'ruff format && mypy --strict src'
