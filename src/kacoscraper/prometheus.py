@@ -30,7 +30,7 @@ operating_time_spec = MetricSpec(
     "operating_time_seconds", "time since restart (or installation?)", type="gauge"
 )
 ac_power_spec = MetricSpec(
-    "AC_power",
+    "AC_power_total",
     description="Current AC power (in Watts)",
     type="gauge",
 )
