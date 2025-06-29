@@ -147,5 +147,4 @@ def poll(
         except Exception as e:
             logging.error("Exception polling:")
             logging.error(e)
-            raise
         time.sleep(poll_interval.total_seconds())
