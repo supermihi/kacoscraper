@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import logging
 import pprint
 import click
 from kacoscraper import prometheus
@@ -13,8 +14,17 @@ from kacoscraper.livedata import (
 @click.group
 @click.pass_context
 @click.option("-h", "--host", default="kaco.fritz.box")
-def kaco_cli(ctx: click.Context, host: str) -> None:
+@click.option("-v", "--verbose", count=True)
+def kaco_cli(ctx: click.Context, host: str, verbose: int) -> None:
     ctx.obj = {"host": host}
+    match verbose:
+        case 0:
+            level = logging.WARNING
+        case 1:
+            level = logging.INFO
+        case _:
+            level = logging.DEBUG
+    logging.basicConfig(format="%m(asctime)s %(levelname)s: %(message)s", level=level)
 
 
 @kaco_cli.command("call")
