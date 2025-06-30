@@ -144,7 +144,6 @@ def poll(
         logging.debug("polling ...")
         try:
             metrics.poll()
-        except Exception as e:
-            logging.error("Exception polling:")
-            logging.error(e)
+        except Exception:
+            logging.exception("Exception polling data")
         time.sleep(poll_interval.total_seconds())
