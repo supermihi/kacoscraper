@@ -24,7 +24,7 @@ def kaco_cli(ctx: click.Context, host: str, verbose: int) -> None:
             level = logging.INFO
         case _:
             level = logging.DEBUG
-    logging.basicConfig(format="%m(asctime)s %(levelname)s: %(message)s", level=level)
+    logging.basicConfig(format="%(asctime)s %(levelname)s: %(message)s", level=level)
 
 
 @kaco_cli.command("call")
