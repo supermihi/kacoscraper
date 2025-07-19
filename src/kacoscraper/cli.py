@@ -62,3 +62,6 @@ def poll(ctx: click.Context, port: int) -> None:
         for inverter in inverters
     ]
     prometheus.poll(providers, port)
+
+if __name__ == "__main__":
+    kaco_cli()

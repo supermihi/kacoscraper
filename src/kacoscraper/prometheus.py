@@ -74,7 +74,7 @@ power_factor_spec = MetricSpec("power_factor", description="power factor", type=
 
 
 def get_metric_values(
-    details: InverterDetails,
+        details: InverterDetails,
 ) -> Iterable[tuple[MetricSpec, float | int]]:
     yield operating_time_spec, details.operating_time.total_seconds()
     yield ac_power_spec, details.ac_power_watts
@@ -90,11 +90,10 @@ def get_metric_values(
 
 
 DEVICE_NAME_LABEL: Final[str] = "name"
-SERIAL_LABEL: Final[str] = "serial"
 
 
 def create_metric(spec: MetricSpec):
-    label_names = [DEVICE_NAME_LABEL, SERIAL_LABEL]
+    label_names = [DEVICE_NAME_LABEL]
     if spec.multi is not None:
         label_names.append(spec.multi.label)
     return Gauge(spec.name, spec.description, label_names)
@@ -103,34 +102,42 @@ def create_metric(spec: MetricSpec):
 class InverterMetrics:
     def __init__(self, inverters: list[InverterDataProvider]):
         self.metrics: dict[str, Gauge] = {}
+        self.device_metrics: dict[str, set[Gauge]] = {}
         self.inverters = inverters
 
     def poll(self):
         for inverter in self.inverters:
             self.update_inverter(inverter)
 
-    def get_metric(self, spec: MetricSpec, name: str, serial: str) -> Gauge:
+    def get_metric(self, spec: MetricSpec, device_name: str) -> Gauge:
         if spec.name in self.metrics:
             metric = self.metrics[spec.name]
         else:
             metric = create_metric(spec)
             self.metrics[spec.name] = metric
-        labels = [name, serial]
+        labels = [device_name]
         if spec.multi:
             labels.append(str(spec.multi.index))
-        return metric.labels(*labels)
+        metric = metric.labels(*labels)
+        self.device_metrics.setdefault(device_name, set()).add(metric)
+        return metric
 
     def update_inverter(self, inverter: InverterDataProvider) -> None:
-        results = inverter.get_details()
+        try:
+            results = inverter.get_details()
+        except:
+            for metric in self.device_metrics.get(inverter.name, []):
+                metric.set(float('NaN'))
+            raise
         for metric_spec, value in get_metric_values(results):
-            metric = self.get_metric(metric_spec, inverter.name, results.serial)
+            metric = self.get_metric(metric_spec, inverter.name)
             metric.set(value)
 
 
 def poll(
-    inverters: list[InverterDataProvider],
-    port: int,
-    poll_interval: timedelta = timedelta(seconds=5),
+        inverters: list[InverterDataProvider],
+        port: int,
+        poll_interval: timedelta = timedelta(seconds=5),
 ):
     metrics = InverterMetrics(inverters)
 
