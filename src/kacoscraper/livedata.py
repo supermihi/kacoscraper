@@ -57,12 +57,8 @@ class KacoNX3InverterDataProvider(InverterDataProvider):
     def __init__(self, host: str, serial: str) -> None:
         self.host = host
         self.serial = serial
-        self.n = 0
 
     def get_details(self):
-        if self.n >= 1:
-            raise Exception()
-        self.n += 1
         return get_inverter_details(self.host, self.serial)
 
     @property
